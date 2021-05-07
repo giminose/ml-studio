@@ -16,4 +16,4 @@ model = keras.Sequential(
     ]
 )
 model.summary()
-keras.utils.plot_model(model)
+keras.utils.plot_model(model, to_file="cnn/model.png")

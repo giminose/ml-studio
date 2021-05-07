@@ -6,7 +6,7 @@ import numpy as np
 
 max_features = 20000  # 只考慮 20000 個字彙
 maxlen = 200  # 每則影評只考慮前 200 個字
-epochs = 2
+epochs = 1
 
 (x_train, y_train), (x_test, y_test) = keras.datasets.imdb.load_data(
     num_words=max_features
@@ -46,7 +46,7 @@ plt.xlabel("Num of Epochs")
 plt.ylabel("Accuracy")
 plt.title("Training Accuracy vs Validation Accuracy")
 plt.legend(['train','validation'])
-plt.savefig('lstm_accuracy.png')
+plt.savefig('lstm/lstm_accuracy.png')
 
 plt.figure(1)
 plt.plot(history.history['loss'],'r')
@@ -57,4 +57,4 @@ plt.xlabel("Num of Epochs")
 plt.ylabel("Loss")
 plt.title("Training Loss vs Validation Loss")
 plt.legend(['train','validation'])
-plt.savefig('lstm_validation.png')
+plt.savefig('lstm/lstm_validation.png')
