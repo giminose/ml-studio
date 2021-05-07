@@ -1,12 +1,15 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras import callbacks
+from tensorflow.keras import optimizers
 import matplotlib.pyplot as plt
 import numpy as np
 
 max_features = 20000  # 只考慮 20000 個字彙
 maxlen = 200  # 每則影評只考慮前 200 個字
-epochs = 1
+epochs = 10
+learning_rate = 0.01
 
 (x_train, y_train), (x_test, y_test) = keras.datasets.imdb.load_data(
     num_words=max_features
@@ -30,9 +33,13 @@ outputs = layers.Dense(1, activation="sigmoid")(x)
 model = keras.Model(inputs, outputs)
 model.summary()
 
-model.compile("adam", "binary_crossentropy", metrics=["accuracy"])
+opt = optimizers.Adam(learning_rate)
+model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
 print("Training")
-history = model.fit(x_train, y_train, batch_size=32, epochs=epochs, validation_split=0.1)
+
+callback = callbacks.EarlyStopping(monitor='val_loss', patience=8, min_delta=0.001)
+history = model.fit(x_train, y_train, 
+    batch_size=32, epochs=epochs, validation_split=0.2, callbacks=[callback])
 
 print("Evaluate")
 print(model.evaluate(x_test, y_test))
