@@ -23,8 +23,8 @@ inputs = keras.Input(shape=(None,), dtype="int32")
 
 x = layers.Embedding(max_features, 128, mask_zero=True)(inputs)
 # 使用 2 個 LSTM
-x = layers.LSTM(24, return_sequences=True)(x)
-x = layers.LSTM(64)(x)
+x = layers.GRU(64, return_sequences=True)(x)
+x = layers.GRU(64)(x)
 
 outputs = layers.Dense(1, activation="sigmoid")(x)
 model = keras.Model(inputs, outputs)
