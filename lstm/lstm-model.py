@@ -4,9 +4,14 @@ from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 import numpy as np
 
+from tensorflow.python.compiler.mlcompute import mlcompute
+
+mlcompute.set_mlc_device(device_name='gpu')
+tf.config.run_functions_eagerly(False)
+
 max_features = 20000  # 只考慮 20000 個字彙
 maxlen = 200  # 每則影評只考慮前 200 個字
-epochs = 2
+epochs = 6
 
 (x_train, y_train), (x_test, y_test) = keras.datasets.imdb.load_data(
     num_words=max_features
@@ -16,15 +21,14 @@ print(f'測試資料筆數：{len(x_test)}')
 
 # 不足長度，後面補0
 x_train = keras.preprocessing.sequence.pad_sequences(x_train, maxlen=maxlen)
-x_test = keras.preprocessing.sequence.pad_sequences(x_test, maxlen=maxlen)
 
 # 可輸入不定長度的整數陣列
 inputs = keras.Input(shape=(None,), dtype="int32")
 
-x = layers.Embedding(max_features, 128, mask_zero=True)(inputs)
+x = layers.Embedding(max_features, 128)(inputs)
 # 使用 2 個 LSTM
-x = layers.GRU(64, return_sequences=True)(x)
-x = layers.GRU(64)(x)
+x = layers.LSTM(16, return_sequences=True)(x)
+x = layers.LSTM(8)(x)
 
 outputs = layers.Dense(1, activation="sigmoid")(x)
 model = keras.Model(inputs, outputs)
@@ -32,12 +36,8 @@ model.summary()
 
 model.compile("adam", "binary_crossentropy", metrics=["accuracy"])
 
-print("Training")
-history = model.fit(x_train, y_train, 
-    batch_size=32, epochs=epochs, validation_split=0.2)
-
-print("Evaluate")
-print(model.evaluate(x_test, y_test))
+history = model.fit(x_train, y_train, batch_size=32, epochs=epochs, validation_split=0.1)
+model.save('lstm/lstm.h5')
 
 plt.figure(0)
 plt.plot(history.history['accuracy'],'r')
