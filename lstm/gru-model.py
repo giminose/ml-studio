@@ -11,32 +11,25 @@ tf.config.run_functions_eagerly(False)
 
 max_features = 20000  # 只考慮 20000 個字彙
 maxlen = 200  # 每則影評只考慮前 200 個字
-epochs = 6
 
-(x_train, y_train), (x_test, y_test) = keras.datasets.imdb.load_data(
-    num_words=max_features
-)
+(x_train, y_train), (x_test, y_test) = keras.datasets.imdb.load_data(num_words=max_features)
 print(f'訓練資料筆數：{len(x_train)}')
-print(f'測試資料筆數：{len(x_test)}')
 
 # 不足長度，後面補0
 x_train = keras.preprocessing.sequence.pad_sequences(x_train, maxlen=maxlen)
 
 # 可輸入不定長度的整數陣列
-inputs = keras.Input(shape=(None,), dtype="int32")
-
-x = layers.Embedding(max_features, 128)(inputs)
-# 使用 2 個 GRU
-x = layers.GRU(16, return_sequences=True)(x)
-x = layers.GRU(64)(x)
-
-outputs = layers.Dense(1, activation="sigmoid")(x)
-model = keras.Model(inputs, outputs)
+model = keras.models.Sequential()
+model.add(layers.Embedding(max_features, 32, input_length = maxlen))
+model.add(layers.Dropout(0.29))
+model.add(layers.GRU(32))
+model.add(layers.Dropout(0.29))
+model.add(layers.Dense(1, activation = "sigmoid"))
 model.summary()
 
 model.compile("adam", "binary_crossentropy", metrics=["accuracy"])
 
-history = model.fit(x_train, y_train, batch_size=32, epochs=epochs, validation_split=0.2)
+history = model.fit(x_train, y_train, batch_size=512, epochs=3, validation_split=0.2)
 model.save('lstm/gru.h5')
 
 plt.figure(0)
